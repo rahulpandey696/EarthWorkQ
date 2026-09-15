@@ -1,0 +1,49 @@
+[general]
+name=EarthWorkQ
+qgisMinimumVersion=3.22
+qgisMaximumVersion=4.99
+supportsQt6=True
+description=Earthwork cut and fill quantities by weighted grid integration, with void-ratio volume conversion, cross-validated interpolation and a verifiable calculation report
+version=1.0
+author=Rahul Pandey
+email=rahulpandey696@gmail.com
+
+about=EarthWorkQ integrates cut and fill volumes between a surveyed existing ground surface and a design formation over one or more polygons, and solves for the formation level at which a site balances.
+    METHOD. All elevation inputs are reduced to a common aligned grid. Boundary cells are area-weighted by rasterising the area of interest at a sub-cell resolution (8x8 by default) and block-averaging, rather than being included or excluded whole on a centre-in-polygon test, which otherwise introduces an error proportional to the site perimeter. Volumes are the coverage-weighted sum of the signed depth field over cell area. No engine extrapolates: cells outside the convex hull of the survey, or beyond the outermost contour, are returned as nodata, excluded from the quantities, and reported as an area shortfall.
+    VOLUME CONVERSION. Cut and fill are related by conservation of the volume of solids, V_solids = V_total / (1 + e), giving a shrinkage factor of (1 + e_in-situ) / (1 + e_compacted). Material may be specified by void ratios, by dry densities, or by an in-situ density with a compaction requirement as a percentage of Proctor maximum dry density. Water content is excluded from the volume balance, since it is not conserved through conditioning and compaction; it is used only for conditioning water volume, haulage mass, and validation that the implied degree of saturation S = w.Gs/e does not exceed unity. An optional loose void ratio gives bulked haul volume; an optional topsoil strip depth is reported separately and offsets the earthworks surface.
+    INTERPOLATION. Engines are swappable and filtered by input type: Clough-Tocher and linear Delaunay TIN, thin-plate RBF with tension and smoothing, inverse distance weighting, nearest neighbour, GRASS v.surf.rst, GRASS r.surf.contour, and the native QGIS TIN. Ten-fold cross-validation runs over every applicable engine and reports RMSE, MAE, bias and maximum error, so the interpolator is selected by measurement rather than by assumption. Contour input defaults to r.surf.contour, which distance-weights between bracketing contours rather than triangulating vertices and so avoids the flat-triangle artefacts that produce level hilltops and valley floors. Contour topology is validated for crossing lines at differing elevations, and polylines are densified before fitting.
+    BALANCE ANALYSIS. Sorted cumulative sums of the coverage-weighted ground elevations reduce cut and fill at any level to a binary search, making a full sweep effectively free; the balance level satisfying cut = SF x fill is then found by bisection on a monotone function. The level of minimum total earthmoving is reported alongside it.
+    VERIFICATION. A grid convergence test recomputes quantities at half and a quarter of the chosen cell size. Where the design surface is planar, an independent exact TIN prismatic integration is performed, with triangles straddling the zero plane split at the intersection and integrated in closed form. Interpolation RMSE is propagated to an indicative volume uncertainty.
+    INPUTS. CSV or XLSX table of easting, northing and elevation; point layer with elevation from an attribute or geometry Z; contour polylines; or an existing DEM. Design surfaces may be a flat formation level, a sloped plane defined by a spot level and grades in X and Y, or a design DEM. All inputs must be in a projected CRS in metres or feet.
+    OUTPUTS. Signed cut/fill depth raster with a diverging ramp centred on zero, existing and design surface rasters, cut/balanced/fill zone polygons, depth contours, per-polygon quantities as CSV and as layer attributes, balance curve and area-elevation charts, and an HTML calculation report recording every input, assumption and check. The engine is also exposed as three Processing algorithms for model builder, batch and PyQGIS use.
+
+tracker=https://github.com/rahulpandey696/EarthWorkQ/issues
+repository=https://github.com/rahulpandey696/EarthWorkQ
+homepage=https://github.com/rahulpandey696/EarthWorkQ
+
+changelog=1.0
+    Initial release.
+    - Elevation input from CSV/XLSX tables, point layers, contour polylines or a DEM
+    - Eight swappable interpolation engines, filtered by input type and by what is
+      installed, with ten-fold cross-validation and per-engine RMSE reporting
+    - Contour topology validation, automatic densification, GRASS r.surf.contour support
+    - Fractional boundary cell weighting by sub-cell rasterisation
+    - Flat level, sloped plane and design DEM formation surfaces
+    - Void-ratio shrinkage and bulking; optional water content for conditioning
+      water, haul mass and degree-of-saturation validation; topsoil stripping
+    - Balance level solved by bisection against cut = SF x fill, plus the level
+      of minimum total earthmoving
+    - Grid convergence test and exact TIN prismatic cross-check
+    - HTML calculation report, styled rasters, zone polygons, depth contours,
+      charts and CSV outputs
+    - Three Processing algorithms
+    - Runs on QGIS 3.22 through QGIS 4.x, Qt5 and Qt6
+
+tags=earthwork,cut and fill,volume,dem,terrain,interpolation,survey,civil engineering,construction,quantities,contour,tin,idw,balance,mass haul,geotechnical,void ratio,compaction
+
+category=Raster
+icon=icon.png
+experimental=False
+deprecated=False
+hasProcessingProvider=yes
+server=False
